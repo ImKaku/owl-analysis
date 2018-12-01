@@ -1,0 +1,35 @@
+namespace OwlAnalysis.Model
+{
+    public enum Hero
+    {
+        dva,
+        orisa,
+        reinhardt,
+        roadhog,
+        winston,
+        wreckingball,
+        zarya,
+        ashe,
+        bastion,
+        doomfist,
+        genji,
+        hanzo,
+        junkrat,
+        mccree,
+        mei,
+        pharah,
+        reaper,
+        soldier,
+        sombra,
+        symmetra,
+        torbjorn,
+        tracer,
+        widowmaker,
+        ana,
+        brigitte,
+        lucio,
+        mercy,
+        moira,
+        zenyatta
+    }
+}
