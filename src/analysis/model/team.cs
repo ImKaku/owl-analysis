@@ -7,8 +7,9 @@ namespace OwlAnalysis.Model
             public string Id{get; set;}
 
             public TeamEnum TeamEnum{get; set;}
-
-            public List<Match> Matches{get; set;} = new List<Match>();
+       
+            public virtual List<Match> AwayMatches{get; set;} = new List<Match>();
+            public virtual List<Match> HomeMatches{get; set;} = new List<Match>();
 
             public Team(){
 
@@ -16,6 +17,14 @@ namespace OwlAnalysis.Model
 
             public Team(TeamEnum teamEnum){
                 this.TeamEnum = teamEnum;
+            }
+
+            public List<Match> Matches(){
+                List<Match> allMatches =  new List<Match>();
+                allMatches.AddRange(AwayMatches);
+                allMatches.AddRange(HomeMatches);
+
+                return allMatches;
             }
     }
 }

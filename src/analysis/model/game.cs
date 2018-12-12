@@ -21,10 +21,10 @@ namespace OwlAnalysis.Model{
             this.Match = match;
         }
 
-        public virtual List<PlayerGame> playerGames{get; set;} = new List<PlayerGame>();
+        public virtual List<PlayerGame> PlayerGames{get; set;} = new List<PlayerGame>();
 
         public PlayerGame FindPlayerGameForPlayer(Player player){
-            foreach(var pg in playerGames){
+            foreach(var pg in PlayerGames){
                 if(pg.Player.Name.Equals(player.Name)){
                     return pg;
                 }
@@ -33,7 +33,7 @@ namespace OwlAnalysis.Model{
             var playerGame = new PlayerGame(player);
             playerGame.Game = this;
             
-            playerGames.Add(playerGame);
+            PlayerGames.Add(playerGame);
 
 
             return playerGame;

@@ -4,6 +4,7 @@ namespace OwlAnalysis.Model{
     public class Stage{
         public string Id{get; set;}
 
+        public int officialId{get; set;}
         public StageEnum StageEmum{get; set;}
 
         public virtual List<Match> Matches{get; set;} = new List<Match>();

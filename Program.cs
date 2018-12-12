@@ -16,16 +16,23 @@ namespace test
         
         static void Main(string[] args)
         {
+            
+            
+            importSchedule();
+            //importStatData();
 
-            //import(parser());
-
+            return;
+            
             using (var context = new OwlAnalysisContex()){
                 PlayerData playerData = new PlayerData(context);
-                Player gido = playerData.FindPlayerByName("gido");
-
-                Console.WriteLine(gido.Name);
+                MatchData matchData = new MatchData(context);
                 
-                foreach(PlayerGame pg in gido.PlayerGames){
+                Player muma = playerData.FindPlayerByName("muma");
+
+                Game longestGame = null;
+                var longest = 0.0;
+                
+                foreach(PlayerGame pg in muma.PlayerGames){
                     Console.Write(pg.Game.Match.HomeTeam + " " + pg.Game.Match.AwayTeam);
 
                     foreach(PlayerHeroStats phs in pg.HeroStats){
@@ -40,21 +47,26 @@ namespace test
             }
         }
 
-        static private JsonParser parser(){
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\data\data.json");
+        public static void importSchedule(){
+            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\data\public\owl-schedule-12122018.json");
+            String s = File.ReadAllText(path);
+            var obj = JObject.Parse(s);
+
+            ScheduleParser parser = new ScheduleParser();
+
+            parser.parse(obj);
+        }
+
+        static private void importStatData()
+        {
+            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\data\private\data.json");
             String s = File.ReadAllText(path);
             var array = JArray.Parse(s);
 
-            JsonParser parser = new JsonParser();
+            StatParser parser = new StatParser();
 
             parser.parse(array);
 
-            return parser;
-        }
-
-        static private void import(JsonParser parser)
-        {
-            
             using (var context = new OwlAnalysisContex())
             {
                 var isCreated = context.Database.EnsureCreated();

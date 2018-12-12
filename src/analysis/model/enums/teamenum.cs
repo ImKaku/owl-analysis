@@ -1,5 +1,7 @@
-namespace OwlAnalysis.Model{
-    public enum TeamEnum{
+namespace OwlAnalysis.Model
+{
+    public enum TeamEnum
+    {
         uprising,
         fuel,
         dynasty,
@@ -11,6 +13,14 @@ namespace OwlAnalysis.Model{
         dragons,
         mayham,
         outlaws,
-        shock
+        shock,
+        spark,
+        charge,
+        hunters,
+        justice,
+        titans,
+        defiant,
+        reign,
+        eternal
     }
 }
