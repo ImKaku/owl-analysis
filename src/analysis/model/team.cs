@@ -9,6 +9,7 @@ namespace OwlAnalysis.Model
             public TeamEnum TeamEnum{get; set;}
        
             public virtual List<Match> AwayMatches{get; set;} = new List<Match>();
+            
             public virtual List<Match> HomeMatches{get; set;} = new List<Match>();
 
             public Team(){

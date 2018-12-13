@@ -15,7 +15,7 @@ namespace OwlAnalysis.Service
 
         }
 
-        public List<Match> allMatches()
+        public List<Match> AllMatches()
         {
             return DaoContext.Matches
                 .Include(m => m.Stage)

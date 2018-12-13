@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace OwlAnalysis.Model{
@@ -5,6 +6,7 @@ namespace OwlAnalysis.Model{
         public string Id{get; set;}
 
         public int officialId{get; set;}
+
         public StageEnum StageEmum{get; set;}
 
         public virtual List<Match> Matches{get; set;} = new List<Match>();

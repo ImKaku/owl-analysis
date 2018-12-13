@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OwlAnalysis.Model;
 using System.Globalization;
+using Commons.Tools;
 
 namespace OwlAnalysis.Service
 {
@@ -48,24 +49,34 @@ namespace OwlAnalysis.Service
 
             bool enabled = (bool)jObject["enabled"];
             int stageId = (int)jObject["id"];
+
             JArray matches = (JArray)jObject["matches"];
+            JArray weeks = (JArray)jObject["weeks"];
 
             if (!stages.ContainsKey(stageId))
             {
                 stages[stageId] = new Stage();
-                stages[stageId].officialId = stageId;
+                stages[stageId].officialId = stageId+1;
             }
 
             Stage stage = stages[stageId];
 
-            foreach (JObject matchObj in matches.Children<JObject>())
+            foreach (JObject weekObj in weeks.Children<JObject>())
             {
-                Match match = parseMatch(stage, matchObj);
+                int week = (int)weekObj["id"];
+                JArray matchesPerWeek = (JArray) weekObj["matches"];
+
+                foreach (JObject matchObj in matchesPerWeek.Children<JObject>())
+                {
+                    Match match = parseMatch(stage, week, matchObj);
+
+                }
             }
+
         }
 
 
-        public Match parseMatch(Stage stage, JObject matchJObj)
+        public Match parseMatch(Stage stage, int week, JObject matchJObj)
         {
             int id = (int)matchJObj["id"];
 
@@ -88,10 +99,14 @@ namespace OwlAnalysis.Service
             match.HomeTeam = parseMatchCompetitor(competitorsList.ElementAt(0));
             match.AwayTeam = parseMatchCompetitor(competitorsList.ElementAt(1));
 
-            match.start = DateTime.Parse((string)matchJObj["startDate"]);
-            match.end = DateTime.Parse((string)matchJObj["endDate"]);
+            match.Start = DateTime.Parse((string)matchJObj["startDate"]);
+            match.End = DateTime.Parse((string)matchJObj["endDate"]);
 
-            Console.WriteLine(match.Stage.officialId + " " + GetIso8601WeekOfYear(match.start) + " " + match.HomeTeam.TeamEnum + " " + match.AwayTeam.TeamEnum);
+            match.WeekNumber = week+1;
+
+            //int week = GetIso8601WeekOfYear(match.start);
+
+            Console.WriteLine(match.Stage.officialId + " " + match.WeekNumber + " " + match.HomeTeam.TeamEnum + " " + match.AwayTeam.TeamEnum);
 
             return match;
         }
@@ -115,20 +130,7 @@ namespace OwlAnalysis.Service
             return teams[teamEnum];
         }
 
-        public static int GetIso8601WeekOfYear(DateTime time)
-        {
-            // Seriously cheat.  If its Monday, Tuesday or Wednesday, then it'll 
-            // be the same week# as whatever Thursday, Friday or Saturday are,
-            // and we always get those right
-            DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
-            if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
-            {
-                time = time.AddDays(3);
-            }
 
-            // Return the week of our adjusted day
-            return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
-        }
         public TeamEnum parseTeamEnum(string team)
         {
 

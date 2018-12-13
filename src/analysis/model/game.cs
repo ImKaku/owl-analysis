@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OwlAnalysis.Model{
     public class Game{
+        
         public string Id{get; set;}
 
         public virtual Match Match{get; set;} 
