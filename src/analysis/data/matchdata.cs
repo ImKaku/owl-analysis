@@ -19,7 +19,7 @@ namespace OwlAnalysis.Service
         {
             return DaoContext.Matches
                 .Include(m => m.Stage)
-                .Include(m => m.Games)
+                .Include(m => m.Games.Values)
                     .ThenInclude(g => g.PlayerGames)
                         .ThenInclude(pg => pg.HeroStats)
                             .ThenInclude(pgh => pgh.PlayerStats)

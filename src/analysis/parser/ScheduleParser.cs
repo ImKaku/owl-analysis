@@ -56,7 +56,7 @@ namespace OwlAnalysis.Service
             if (!stages.ContainsKey(stageId))
             {
                 stages[stageId] = new Stage();
-                stages[stageId].officialId = stageId+1;
+                stages[stageId].officialId = stageId + 1;
             }
 
             Stage stage = stages[stageId];
@@ -64,7 +64,7 @@ namespace OwlAnalysis.Service
             foreach (JObject weekObj in weeks.Children<JObject>())
             {
                 int week = (int)weekObj["id"];
-                JArray matchesPerWeek = (JArray) weekObj["matches"];
+                JArray matchesPerWeek = (JArray)weekObj["matches"];
 
                 foreach (JObject matchObj in matchesPerWeek.Children<JObject>())
                 {
@@ -93,38 +93,107 @@ namespace OwlAnalysis.Service
 
             if (competitorsList.Count() != 2)
             {
-                Console.WriteLine("Error");
+                // competitors have not been decided yet 
+                return match;
             }
 
-            match.HomeTeam = parseMatchCompetitor(competitorsList.ElementAt(0));
-            match.AwayTeam = parseMatchCompetitor(competitorsList.ElementAt(1));
+            match.SetHomeTeam(parseMatchCompetitor(competitorsList.ElementAt(0)));
+            match.SetAwayTeam(parseMatchCompetitor(competitorsList.ElementAt(1)));
 
             match.Start = DateTime.Parse((string)matchJObj["startDate"]);
             match.End = DateTime.Parse((string)matchJObj["endDate"]);
 
-            match.WeekNumber = week+1;
+            match.WeekNumber = week + 1;
+
+            JArray gamesJArray = (JArray)matchJObj["games"];
+
+            foreach (JObject gameJObject in gamesJArray.Children<JObject>())
+            {
+                Game game = parseGame(match, gameJObject);
+                match.Games.Add(game.GameNumber, game);
+            }
+
+            if (matchJObj["winner"] != null)
+            {
+                JObject winner = (JObject)matchJObj["winner"];
+                int winnerId = (int)winner["id"];
+
+                if (winnerId == match.HomeTeam.OfficialId)
+                {
+                    match.Winner = match.HomeTeam;
+                }
+                if (winnerId == match.AwayTeam.OfficialId)
+                {
+                    match.Winner = match.AwayTeam;
+                }
+            }
+
+            if (matchJObj["wins"] != null)
+            {
+
+            }
+
 
             //int week = GetIso8601WeekOfYear(match.start);
+            String winnerEnum = match.Winner != null ? match.Winner.TeamEnum.ToString() : null;
+            int homeScore = match.HomeScore();
+            int awayScore = match.AwayScore();
 
-            Console.WriteLine(match.Stage.officialId + " " + match.WeekNumber + " " + match.HomeTeam.TeamEnum + " " + match.AwayTeam.TeamEnum);
+            Console.WriteLine(match.Stage.officialId + " " + match.WeekNumber + " " + match.HomeTeam.TeamEnum + " " + match.AwayTeam.TeamEnum + " | Winner: " + winnerEnum + " | (" + homeScore + "-" + awayScore + ")");
 
             return match;
         }
 
+        public Game parseGame(Match match, JObject gameJObject)
+        {
+            Game game = new Game(match);
+            game.OfficialId = (int)gameJObject["id"];
+
+            game.GameNumber = (int)gameJObject["number"];
+
+            JArray points = (JArray)gameJObject["points"];
+
+            if (points == null || points.Count() != 2)
+            {
+                // no game score
+                return game;
+            }
+
+            game.HomeTeamScore = (int)points.ElementAt(0);
+            game.AwayTeamScore = (int)points.ElementAt(1);
+
+            if (game.HomeTeamScore > game.AwayTeamScore){
+                game.Winner = match.HomeTeam;
+            }
+            if (game.HomeTeamScore < game.AwayTeamScore){
+                game.Winner = match.AwayTeam;
+            }
+            if (game.HomeTeamScore == game.AwayTeamScore){
+                // draw
+            }
+            return game;
+
+        }
+
         public Team parseMatchCompetitor(JObject competitor)
         {
-            Team team = parseTeam((string)competitor["abbreviatedName"]);
+            Team team = parseTeam(competitor);
 
             return team;
         }
 
-        public Team parseTeam(string team)
+        public Team parseTeam(JObject jOTeam)
         {
-            TeamEnum teamEnum = parseTeamEnum(team);
+            string teamName = (string)jOTeam["abbreviatedName"];
+
+            TeamEnum teamEnum = parseTeamEnum(teamName);
 
             if (!teams.ContainsKey(teamEnum))
             {
-                teams[teamEnum] = new Team(teamEnum);
+                Team newTeam = new Team(teamEnum);
+                newTeam.OfficialId = (int)jOTeam["id"];
+
+                teams[teamEnum] = newTeam;
             }
 
             return teams[teamEnum];

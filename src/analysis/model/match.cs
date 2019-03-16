@@ -15,13 +15,15 @@ namespace OwlAnalysis.Model
 
         public DateTime End { get; set; }
 
-        public int WeekNumber{get; set;}
+        public int WeekNumber { get; set; }
 
-        public virtual List<Game> Games { get; set; } = new List<Game>();
+        public virtual Dictionary<int, Game> Games { get; set; } = new Dictionary<int, Game>();
 
         public virtual Team HomeTeam { get; set; }
 
         public virtual Team AwayTeam { get; set; }
+
+        public virtual Team Winner { get; set; }
 
         public Match()
         {
@@ -36,11 +38,11 @@ namespace OwlAnalysis.Model
 
         public Game FindOrCreateGame(int gameNr, Map map)
         {
-            foreach (var g in Games)
+            foreach (var k in Games)
             {
-                if (g.GameNumber == gameNr && g.Map == map)
+                if (k.Value.GameNumber == gameNr && k.Value.Map == map)
                 {
-                    return g;
+                    return k.Value;
                 }
             }
 
@@ -49,11 +51,76 @@ namespace OwlAnalysis.Model
             game.GameNumber = gameNr;
             game.Map = map;
 
-            Games.Add(game);
+            Games.Add(game.GameNumber, game);
 
             return game;
         }
 
+        public int HomeScore()
+        {
+            if (HomeTeam == null)
+            {
+                return 0;
+            }
+
+            int score = 0;
+
+            foreach (Game game in Games.Values)
+            {
+                if (game.Winner != null && game.Winner.OfficialId == HomeTeam.OfficialId)
+                {
+                    score++;
+                }
+            }
+
+            return score;
+        }
+
+        public int AwayScore()
+        {
+            if (AwayTeam == null)
+            {
+                return 0;
+            }
+
+            int score = 0;
+
+            foreach (Game game in Games.Values)
+            {
+                if (game.Winner != null && game.Winner.OfficialId == AwayTeam.OfficialId)
+                {
+                    score++;
+                }
+            }
+
+            return score;
+        }
+
+        public Match SetHomeTeam(Team homeTeam)
+        {
+            if (HomeTeam != null)
+            {
+                throw new ArgumentException("Home team already set");
+            }
+
+            HomeTeam = homeTeam;
+            HomeTeam.HomeMatches.Add(this);
+
+            return this;
+        }
+
+        public Match SetAwayTeam(Team awayTeam)
+        {
+            if (AwayTeam != null)
+            {
+                throw new ArgumentException("Away team already set");
+            }
+
+            AwayTeam = awayTeam;
+            awayTeam.AwayMatches.Add(this);
+
+            return this;
+        }
     }
 
 }

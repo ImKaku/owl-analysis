@@ -6,15 +6,15 @@ namespace OwlAnalysis.Model
     {
             public string Id{get; set;}
 
+            public int OfficialId  {get; set;}
+
             public TeamEnum TeamEnum{get; set;}
        
             public virtual List<Match> AwayMatches{get; set;} = new List<Match>();
             
             public virtual List<Match> HomeMatches{get; set;} = new List<Match>();
 
-            public Team(){
-
-            }
+            public List<PlayerPeriod> PlayerPeriods{get; set;} = new List<PlayerPeriod>();
 
             public Team(TeamEnum teamEnum){
                 this.TeamEnum = teamEnum;
